@@ -17,7 +17,7 @@ body,
 }
 
 .dndflow aside {
-  border-right: 1px solid #eee;
+  border-left: 1px solid #eee;
   padding: 15px 10px;
   font-size: 12px;
   background: #fcfcfc;
@@ -65,4 +65,16 @@ body,
     width: 20%;
     max-width: 250px;
   }
+}
+
+.ProseMirror {
+  padding: 0.5em;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }
