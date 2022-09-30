@@ -22,6 +22,7 @@ export interface FileInfo {
   fileName: string
   content?: JSONContent
   references?: string[]
+  folded?: boolean
 }
 
 export type StoreState = {
