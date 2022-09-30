@@ -73,6 +73,7 @@ body,
 
 .ProseMirror {
   padding: 0.5em;
+  position: relative;
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
@@ -81,4 +82,16 @@ body,
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+.ProseMirror h1 {
+  @apply text-3xl font-bold;
+}
+
+.ProseMirror h2 {
+  @apply text-xl font-bold;
+}
+
+.ProseMirror h3 {
+  @apply font-mono uppercase;
 }

@@ -24,7 +24,7 @@ export interface FileInfo {
   references?: string[]
 }
 
-type RFState = {
+export type StoreState = {
   nodes: Node<FileInfo>[]
   unaddedFiles: FileInfo[]
   edges: Edge[]
@@ -47,7 +47,7 @@ type RFState = {
 
 // this is our useStore hook that we can use in our components to get parts of the store and call actions
 export const useStore = create(
-  persist<RFState>(
+  persist<StoreState>(
     (set, get) => ({
       nodes: [
         {
@@ -99,7 +99,7 @@ export const useStore = create(
               data: fileData,
             }
           })
-          .filter((node) => !!node?.id) as RFState['nodes']
+          .filter((node) => !!node?.id) as StoreState['nodes']
 
         const edges = [...curState.nodes, ...newNodes].reduce(
           (edges, curNode, index, arr) => {
