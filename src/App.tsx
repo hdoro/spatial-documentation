@@ -1,63 +1,92 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import ReactFlow, {
   Background,
   Controls,
+  Node,
   NodeTypes,
+  OnEdgesChange,
+  OnNodesChange,
   ReactFlowProvider,
-} from "react-flow-renderer";
-import { DocumentNode } from "./DocumentNode";
+  XYPosition,
+} from 'react-flow-renderer'
+import { FileNode } from './FileNode'
 
-import Sidebar from "./Sidebar";
-import { useStore } from "./store";
+import Sidebar from './Sidebar'
+import { FileInfo, useStore } from './store'
 
-const nodeTypes: NodeTypes = { document: DocumentNode as any };
+const nodeTypes: NodeTypes = { file: FileNode as any }
 
 const DnDFlow = () => {
-  const {
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-    addFilesToCanvas,
-    setReactFlowInstance,
-    reactFlowInstance,
-  } = useStore();
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const { files, editFile, setReactFlowInstance, reactFlowInstance } =
+    useStore()
+  const reactFlowWrapper = useRef<HTMLDivElement>(null)
+  const [selection, setSelection] = useState<FileInfo['fileId'] | null>(null)
+
+  const onNodesChange = useCallback<OnNodesChange>(
+    (changes) => {
+      for (const change of changes) {
+        if (change.type === 'remove') {
+          editFile({ fileId: change.id, position: undefined })
+        } else if (change.type === 'position' && change.position) {
+          editFile({ fileId: change.id, position: change.position })
+        } else if (change.type === 'select') {
+          setSelection(change.selected ? change.id : null)
+        }
+      }
+    },
+    [editFile, setSelection],
+  )
+
+  const onEdgesChange = useCallback<OnEdgesChange>((changes) => {
+    console.log({ edgeChanges: changes })
+  }, [])
+
+  const nodes = useMemo<Node<FileInfo>[]>(
+    () =>
+      files
+        .filter((file) => file.position)
+        .map((file) => ({
+          id: file.fileId,
+          position: file.position as XYPosition,
+          data: file,
+          type: 'file',
+          selected: selection === file.fileId,
+        })),
+    [files, selection],
+  )
 
   const onDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  }, []);
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'move'
+  }, [])
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
-      event.preventDefault();
-      if (!reactFlowWrapper?.current) {
-        return;
+      event.preventDefault()
+      if (!reactFlowWrapper?.current || !reactFlowInstance) {
+        return
       }
 
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-      const fileId = event.dataTransfer.getData("application/reactflow");
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect()
+      const fileId = event.dataTransfer.getData('application/reactflow')
 
       // check if the dropped element is valid
-      if (typeof fileId === "undefined" || !fileId) {
-        return;
+      if (typeof fileId === 'undefined' || !fileId) {
+        return
       }
 
-      const position = {
+      const position = reactFlowInstance.project({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
-      };
-      addFilesToCanvas([
-        {
-          fileId,
-          position,
-        },
-      ]);
+      })
+
+      editFile({
+        fileId,
+        position,
+      })
     },
-    [reactFlowInstance]
-  );
+    [reactFlowInstance],
+  )
 
   return (
     <div className="dndflow">
@@ -65,10 +94,10 @@ const DnDFlow = () => {
         <div className="reactflow-wrapper" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}
-            edges={edges}
+            // edges={edges}
+            edges={[]}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}
@@ -84,7 +113,7 @@ const DnDFlow = () => {
         <Sidebar />
       </ReactFlowProvider>
     </div>
-  );
-};
+  )
+}
 
-export default DnDFlow;
+export default DnDFlow

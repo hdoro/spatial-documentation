@@ -1,7 +1,14 @@
-import { useStore } from "./store";
+import { useMemo } from 'react'
+import { useStore } from './store'
 
 export default () => {
-  const { unaddedFiles } = useStore();
+  const { files } = useStore()
+
+  const unaddedFiles = useMemo(
+    () => files.filter((file) => !file.position),
+    [files],
+  )
+
   return (
     <aside>
       <div className="description">
@@ -12,8 +19,8 @@ export default () => {
           key={file.fileId}
           className="dndnode"
           onDragStart={(event) => {
-            event.dataTransfer.setData("application/reactflow", file.fileId);
-            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData('application/reactflow', file.fileId)
+            event.dataTransfer.effectAllowed = 'move'
           }}
           draggable
         >
@@ -21,5 +28,5 @@ export default () => {
         </div>
       ))}
     </aside>
-  );
-};
+  )
+}

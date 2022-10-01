@@ -4,9 +4,9 @@ import Tiptap from './Tiptap/Tiptap'
 import icons from './icons'
 import { useState } from 'react'
 
-export function DocumentNode({ data, selected, ...props }: Node<FileInfo>) {
+export function FileNode({ data, selected, ...props }: Node<FileInfo>) {
   const [fullScreen, setFullScreen] = useState(false)
-  const { editFile, removeFilesFromCanvas } = useStore()
+  const { editFile } = useStore()
 
   return (
     <>
@@ -51,7 +51,9 @@ export function DocumentNode({ data, selected, ...props }: Node<FileInfo>) {
           </div>
           <div className="flex gap-2 items-center">
             <button
-              onClick={() => removeFilesFromCanvas([data.fileId])}
+              onClick={() =>
+                editFile({ fileId: data.fileId, position: undefined })
+              }
               className="text-gray-700 hover:text-red-800"
             >
               <span className="sr-only">Delete</span>
