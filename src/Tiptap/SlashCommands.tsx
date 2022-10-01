@@ -2,6 +2,7 @@ import { Extension, Editor, Range } from '@tiptap/core'
 import { ReactRenderer } from '@tiptap/react'
 import tippy, { Instance } from 'tippy.js'
 import Suggestion, { SuggestionOptions } from '@tiptap/suggestion'
+import uFuzzy from '@leeoniya/ufuzzy'
 import { CommandsList } from './CommandsList'
 
 export const COMMANDS: {
@@ -72,6 +73,10 @@ export const COMMANDS: {
   },
 ]
 
+const commandsTitles = COMMANDS.map((c) => c.title)
+
+const fuzzy = new uFuzzy()
+
 export default Extension.create({
   name: 'commands',
 
@@ -86,8 +91,14 @@ export default Extension.create({
           props.onTrigger(editor, range)
         },
         items: ({ query }) => {
-          return COMMANDS.filter((command) =>
-            command.title.toLowerCase().includes(query),
+          if (!query) return COMMANDS
+
+          const filtered = fuzzy.filter(commandsTitles, query)
+          const info = fuzzy.info(filtered, commandsTitles, query)
+          const ordered = fuzzy.sort(info, commandsTitles, query)
+
+          return ordered.map((index) =>
+            COMMANDS.find((c) => c.title === commandsTitles[info.idx[index]]),
           )
         },
         render() {
