@@ -84,6 +84,8 @@ export default Extension.create({
     return {
       suggestion: {
         char: '/',
+        // @TODO: any way to prevent suggestions for showing when you click on links, without having to enable only on start of line?
+        startOfLine: true,
         command: ({ editor, range, props }) => {
           // 1. Delete the slash
           editor.commands.deleteRange(range)
