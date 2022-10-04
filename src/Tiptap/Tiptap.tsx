@@ -6,7 +6,7 @@ import {
   useEditor,
 } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import Link from '@tiptap/extension-link'
+import { LinkMark } from './LinkMark'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import { lowlight } from 'lowlight/lib/core'
 import { PluginKey } from 'prosemirror-state'
@@ -27,6 +27,12 @@ const Tiptap = ({
   const store = useStore()
   const editor = useEditor({
     extensions: [
+      LinkMark.configure({
+        openOnClick: true,
+        HTMLAttributes: {
+          class: 'text-underline text-blue-700',
+        },
+      }),
       StarterKit.configure({
         blockquote: {
           HTMLAttributes: {
@@ -61,27 +67,13 @@ const Tiptap = ({
         defaultLanguage: 'javascript',
       }),
       SlashCommands,
-      // @TODO: debug why opening on click isn't working (doesn't work on the docs either - https://tiptap.dev/api/marks/link)
-      Link.configure({
-        openOnClick: true,
-        HTMLAttributes: {
-          class: 'text-underline text-blue-700',
-        },
-      }),
-      // Mention.configure({
-      //   HTMLAttributes: {
-      //     class: 'bg-gray-50 px-1 font-semibold',
-      //     onClick: () => console.info('HEREE'),
-      //   },
-      //   suggestion: mentionSuggestion(store),
-      // }),
     ],
     content,
   })
 
   useEffect(() => {
     if (editor) {
-      console.log({ update: editor.getJSON() })
+      // console.log({ update: editor.getJSON() })
       onChange?.(editor.getJSON())
     }
   }, [editor?.state])
@@ -130,6 +122,16 @@ const Tiptap = ({
             >
               Code
             </button>
+            {/* <button
+              onClick={() =>
+                editor.chain().focus().toggleLink({ href: '' }).run()
+              }
+              className={`${
+                editor.isActive('link') ? 'font-bold' : ''
+              } hover:bg-gray-100`}
+            >
+              Link
+            </button> */}
           </div>
         </BubbleMenu>
       )}
