@@ -78,7 +78,7 @@ const commandsTitles = COMMANDS.map((c) => c.title)
 const fuzzy = new uFuzzy()
 
 export default Extension.create({
-  name: 'commands',
+  name: 'slashCommands',
 
   addOptions() {
     return {
