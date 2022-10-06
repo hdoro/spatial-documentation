@@ -53,7 +53,7 @@ export const useStore = create<StoreState>((set, get) => ({
     })
     vscode.postMessage({
       type: 'persist-data',
-      data: get().files,
+      files: get().files,
     })
   },
   setReactFlowInstance: (instance) =>

@@ -1,10 +1,11 @@
 import {
   ExtensionContext,
-  window,
-  WebviewPanel,
+  Uri,
   ViewColumn,
   Webview,
-  Uri,
+  WebviewPanel,
+  window,
+  workspace,
 } from 'vscode'
 import { getUri } from '../utilities/getUri'
 
@@ -34,42 +35,16 @@ export function spatialDocsPanel(context: ExtensionContext): void {
     }
 
     currentPanel.webview.onDidReceiveMessage(
-      (message) => {
-        console.log('[extension] Received', message)
+      async (message) => {
         switch (message.type) {
           case 'persist-data':
-            window.showInformationMessage('Persisting data', {
-              detail: JSON.stringify(message),
-            })
+            persistData({ files: message.files })
             break
           case 'app-ready':
+            const storedData = await getStoredData()
             currentPanel?.webview.postMessage({
               type: 'seed-stored-data',
-              data: {
-                files: [
-                  {
-                    fileId: 'asjd912390',
-                    fileName: 'index.tsx',
-                    position: { x: 250, y: 5 },
-                  },
-                  {
-                    fileId: 'asjasdd912390',
-                    fileName: 'App.tsx',
-                  },
-                  {
-                    fileId: 'aasdksjasdd9123390',
-                    fileName: 'queries.ts',
-                  },
-                  {
-                    fileId: 'aasdksjasdd912390',
-                    fileName: 'Sidebar.tsx',
-                  },
-                  {
-                    fileId: 'aasdasdg1ksjasdd912390',
-                    fileName: 'package.json',
-                  },
-                ],
-              },
+              data: storedData,
             })
             break
         }
@@ -92,6 +67,62 @@ export function spatialDocsPanel(context: ExtensionContext): void {
       context.subscriptions,
     )
   }
+}
+
+async function persistData(data: any) {
+  const saveFileUri = Uri.file(
+    (workspace.workspaceFolders?.[0].uri.path || '') + '/spatial-docs.json',
+  )
+  // @TODO: save file
+  // const saveFile = await workspace.openTextDocument(saveFileUri)
+  console.log(`[extension] Persisting data`, {
+    saveFileUri,
+    // saveFile
+  })
+  // saveFile
+  // workspace
+}
+
+async function getStoredData() {
+  let storedData
+  try {
+    const storageFile = (await workspace.findFiles('spatial-docs.json'))[0]
+    storedData = JSON.parse(
+      (await workspace.openTextDocument(storageFile)).getText(),
+    )
+  } catch (error) {
+    // @TODO ignore files from .gitignore
+    // const gitignore = await workspace.findFiles('.gitignore')
+    // const globIgnore = gitignore[0]
+    //   ? (await workspace.openTextDocument(gitignore[0])).getText()
+    //   : '**/{node_modules,.git}/**'
+
+    const allFiles = (
+      await workspace.findFiles('**', '**/{node_modules,.git,studio}/**')
+    ).map((file) => {
+      const relativePath = file.path
+        // Remove absolute path portion
+        .replace(workspace.workspaceFolders?.[0].uri.path || '', '')
+        // Remove leading slash
+        .slice(1)
+
+      return {
+        fileId: relativePath,
+        fileName: relativePath,
+      }
+    })
+
+    storedData = {
+      files: allFiles,
+    }
+    await persistData(storedData)
+    try {
+    } catch (errorCreating) {
+      console.log('[extension] Error creating file', errorCreating)
+    }
+  }
+
+  return storedData
 }
 
 function getWebviewContent(webview: Webview, extensionUri: Uri) {
