@@ -1,4 +1,5 @@
 import type { WebviewApi } from 'vscode-webview'
+import { StoreState } from '../store'
 
 /**
  * A utility wrapper around the acquireVsCodeApi() function, which enables
@@ -9,14 +10,14 @@ import type { WebviewApi } from 'vscode-webview'
  * dev server by using native web browser features that mock the functionality
  * enabled by acquireVsCodeApi.
  */
-class VSCodeAPIWrapper {
-  private readonly vsCodeApi: WebviewApi<unknown> | undefined
+class VSCodeAPIWrapper<StateType> {
+  private readonly vsCodeApi: WebviewApi<StateType> | undefined
 
   constructor() {
     // Check if the acquireVsCodeApi function exists in the current development
     // context (i.e. VS Code development window or web browser)
     if (typeof acquireVsCodeApi === 'function') {
-      this.vsCodeApi = acquireVsCodeApi()
+      this.vsCodeApi = acquireVsCodeApi<StateType>()
     }
   }
 
@@ -44,7 +45,7 @@ class VSCodeAPIWrapper {
    *
    * @return The current state or `undefined` if no state has been set.
    */
-  public getState(): unknown | undefined {
+  public getState(): StateType | undefined {
     if (this.vsCodeApi) {
       return this.vsCodeApi.getState()
     } else {
@@ -64,7 +65,7 @@ class VSCodeAPIWrapper {
    *
    * @return The new state.
    */
-  public setState<T extends unknown | undefined>(newState: T): T {
+  public setState(newState: StateType): StateType {
     if (this.vsCodeApi) {
       return this.vsCodeApi.setState(newState)
     } else {
@@ -75,4 +76,6 @@ class VSCodeAPIWrapper {
 }
 
 // Exports class singleton to prevent multiple invocations of acquireVsCodeApi.
-export const vscode = new VSCodeAPIWrapper()
+export const vscode = new VSCodeAPIWrapper<
+  Record<string, { version: number; state: StoreState }>
+>()
