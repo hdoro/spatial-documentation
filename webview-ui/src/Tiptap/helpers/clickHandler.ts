@@ -42,28 +42,6 @@ export function clickHandler(options: ClickHandlerOptions): Plugin {
         return false
       },
 
-      // Edit on double click
-      handleDoubleClick: (view, pos, event) => {
-        console.log('Double click', {
-          view,
-          pos,
-          event,
-          setLink: options.editor.commands.setLink,
-        })
-        // view.
-      },
-
-      handleClickOn: (view, pos, node, nodePos, event, direct) => {
-        console.log('Handle click on', {
-          view,
-          pos,
-          node,
-          nodePos,
-          event,
-          direct,
-        })
-      },
-
       // Registers a `click` event, not `mousedown`
       handleDOMEvents: {
         click: (view, event) => {

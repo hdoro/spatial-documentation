@@ -5,7 +5,6 @@ import { COMMANDS } from './SlashCommands'
 export const CommandsList = forwardRef(
   (props: SuggestionProps<typeof COMMANDS[0]>, ref) => {
     const [selectedIndex, setSelectedIndex] = useState(0)
-    console.log({ props })
 
     const selectItem = (index: number) => {
       const item = props.items[index]
