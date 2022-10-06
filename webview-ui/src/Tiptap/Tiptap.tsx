@@ -23,7 +23,7 @@ const Tiptap = ({
   content?: JSONContent
   onChange?: (content: JSONContent) => void
 }) => {
-  const parentRef = useRef()
+  const parentRef = useRef<HTMLDivElement>()
   const store = useStore()
   const editor = useEditor({
     extensions: [
@@ -79,7 +79,7 @@ const Tiptap = ({
   }, [editor?.state])
 
   return (
-    <div className="relative" ref={parentRef}>
+    <div className="relative" ref={parentRef as any}>
       {editor && (
         <BubbleMenu
           editor={editor}

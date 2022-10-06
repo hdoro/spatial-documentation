@@ -1,0 +1,46 @@
+{
+  "name": "spatial-docs",
+  "displayName": "spatial-docs",
+  "description": "Spatial documentation in VS Code",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.46.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:spatial-docs.open"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "spatial-docs.open",
+        "title": "Open spatial docs"
+      }
+    ]
+  },
+  "scripts": {
+    "install:all": "npm install && npm --prefix ./webview-ui install ./webview-ui",
+    "dev:webview": "npm --prefix ./webview-ui run dev",
+    "build:webview": "npm --prefix ./webview-ui run build",
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.0.0",
+    "@types/node": "^18.8.2",
+    "@types/vscode": "^1.71.0",
+    "@typescript-eslint/eslint-plugin": "^5.39.0",
+    "@typescript-eslint/parser": "^5.39.0",
+    "eslint": "^8.24.0",
+    "glob": "^8.0.3",
+    "prettier": "^2.7.1",
+    "typescript": "^4.8.4",
+    "vscode-test": "^1.6.1"
+  }
+}

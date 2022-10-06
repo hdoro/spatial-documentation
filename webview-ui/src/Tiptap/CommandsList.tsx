@@ -33,7 +33,7 @@ export const CommandsList = forwardRef(
     useEffect(() => setSelectedIndex(0), [props.items])
 
     useImperativeHandle(ref, () => ({
-      onKeyDown: ({ event }) => {
+      onKeyDown: ({ event }: any) => {
         if (event.key === 'ArrowUp') {
           upHandler()
           return true
