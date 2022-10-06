@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactFlow, {
   Background,
   Controls,
@@ -13,14 +13,39 @@ import { FileNode } from './FileNode'
 
 import Sidebar from './Sidebar'
 import { FileInfo, useStore } from './store'
+import { vscode } from './utilities/vscode'
 
 const nodeTypes: NodeTypes = { file: FileNode as any }
 
 const DnDFlow = () => {
-  const { files, editFile, setReactFlowInstance, reactFlowInstance } =
+  const { files, editFile, setReactFlowInstance, reactFlowInstance, setFiles } =
     useStore()
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
   const [selection, setSelection] = useState<FileInfo['fileId'] | null>(null)
+
+  useEffect(() => {
+    function handleEvent(event: MessageEvent) {
+      const message = event.data // The JSON data our extension sent
+      console.log({ '[app] event': event })
+
+      switch (message.type) {
+        case 'seed-stored-data':
+          if (message.data?.files) {
+            setFiles(message.data?.files)
+          }
+          break
+      }
+    }
+    window.addEventListener('message', handleEvent)
+
+    // Let the extension know we're ready to handle the data it sends
+    vscode.postMessage({ type: 'app-ready' })
+    console.log('✅ App is ready!')
+
+    return () => {
+      window.removeEventListener('message', handleEvent)
+    }
+  }, [setFiles])
 
   const onNodesChange = useCallback<OnNodesChange>(
     (changes) => {

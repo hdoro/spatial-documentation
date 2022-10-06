@@ -33,23 +33,56 @@ export function spatialDocsPanel(context: ExtensionContext): void {
       return
     }
 
-    currentPanel.webview.html = getWebviewContent(
-      currentPanel.webview,
-      context.extensionUri,
-    )
-    currentPanel.title = 'Spatial Docs'
-
     currentPanel.webview.onDidReceiveMessage(
       (message) => {
-        switch (message.command) {
-          case 'hello':
-            window.showInformationMessage(message.text + 'wooo')
-            return
+        console.log('[extension] Received', message)
+        switch (message.type) {
+          case 'persist-data':
+            window.showInformationMessage('Persisting data', {
+              detail: JSON.stringify(message),
+            })
+            break
+          case 'app-ready':
+            currentPanel?.webview.postMessage({
+              type: 'seed-stored-data',
+              data: {
+                files: [
+                  {
+                    fileId: 'asjd912390',
+                    fileName: 'index.tsx',
+                    position: { x: 250, y: 5 },
+                  },
+                  {
+                    fileId: 'asjasdd912390',
+                    fileName: 'App.tsx',
+                  },
+                  {
+                    fileId: 'aasdksjasdd9123390',
+                    fileName: 'queries.ts',
+                  },
+                  {
+                    fileId: 'aasdksjasdd912390',
+                    fileName: 'Sidebar.tsx',
+                  },
+                  {
+                    fileId: 'aasdasdg1ksjasdd912390',
+                    fileName: 'package.json',
+                  },
+                ],
+              },
+            })
+            break
         }
       },
       undefined,
       context.subscriptions,
     )
+
+    currentPanel.webview.html = getWebviewContent(
+      currentPanel.webview,
+      context.extensionUri,
+    )
+    currentPanel.title = 'Spatial Docs'
 
     currentPanel.onDidDispose(
       () => {

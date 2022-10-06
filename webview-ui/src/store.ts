@@ -1,7 +1,6 @@
 import { JSONContent } from '@tiptap/react'
 import { ReactFlowInstance, XYPosition } from 'react-flow-renderer'
 import create from 'zustand'
-import { persist } from 'zustand/middleware'
 import { vscode } from './utilities/vscode'
 
 // @TODO: rename to "document"?
@@ -22,100 +21,43 @@ export type StoreState = {
   ) => void
   reactFlowInstance: ReactFlowInstance | null
   setReactFlowInstance: (instance: ReactFlowInstance) => void
+  setFiles: (files: FileInfo[]) => void
 }
 
 const INITIAL_STATE: StoreState = {
-  files: [
-    {
-      fileId: 'asjd912390',
-      fileName: 'index.tsx',
-      position: { x: 250, y: 5 },
-    },
-    {
-      fileId: 'asjasdd912390',
-      fileName: 'App.tsx',
-    },
-    {
-      fileId: 'aasdksjasdd9123390',
-      fileName: 'queries.ts',
-    },
-    {
-      fileId: 'aasdksjasdd912390',
-      fileName: 'Sidebar.tsx',
-    },
-    {
-      fileId: 'aasdasdg1ksjasdd912390',
-      fileName: 'package.json',
-    },
-  ],
+  files: [],
   reactFlowInstance: null,
+  setFiles() {},
   editFile() {},
   setReactFlowInstance() {},
 }
 
-const VERSION = 0
-
 // this is our useStore hook that we can use in our components to get parts of the store and call actions
-export const useStore = create(
-  persist<StoreState>(
-    (set, get) => ({
-      ...INITIAL_STATE,
-      editFile: (updatedFile) => {
-        set({
-          files: get().files.map((file) => {
-            if (file.fileId !== updatedFile.fileId) return file
-
-            return {
-              ...file,
-              ...updatedFile,
-            }
-          }),
-        })
-      },
-      setReactFlowInstance: (instance) =>
-        set({
-          reactFlowInstance: instance,
-        }),
-    }),
-    {
-      name: 'spatial-docs',
-      version: VERSION,
-      // @TODO: can we prevent having to do serialize/deserialize the state twice?
-      // Zustand requires strings but vscode.get/setState already work with parsed JSON values
-      getStorage: () => {
-        function getVsStorage(name: string) {
-          return (
-            vscode.getState() || {
-              [name]: {
-                state: INITIAL_STATE,
-                version: VERSION,
-              },
-            }
-          )
-        }
+export const useStore = create<StoreState>((set, get) => ({
+  ...INITIAL_STATE,
+  setFiles: (files) => {
+    set({
+      files,
+    })
+  },
+  editFile: (updatedFile) => {
+    set({
+      files: get().files.map((file) => {
+        if (file.fileId !== updatedFile.fileId) return file
 
         return {
-          getItem(name) {
-            const storage = getVsStorage(name)
-            return JSON.stringify(storage[name])
-          },
-          setItem(name, value) {
-            const storage = getVsStorage(name)
-            vscode.setState({
-              ...storage,
-              [name]: {
-                version: VERSION,
-                state: JSON.parse(value)?.state as StoreState,
-              },
-            })
-          },
-          removeItem(name) {
-            const storage = getVsStorage(name)
-            delete storage[name]
-            vscode.setState(storage)
-          },
+          ...file,
+          ...updatedFile,
         }
-      },
-    },
-  ),
-)
+      }),
+    })
+    vscode.postMessage({
+      type: 'persist-data',
+      data: get().files,
+    })
+  },
+  setReactFlowInstance: (instance) =>
+    set({
+      reactFlowInstance: instance,
+    }),
+}))
