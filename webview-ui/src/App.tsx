@@ -13,11 +13,12 @@ import { FileNode } from './FileNode'
 
 import Sidebar from './Sidebar'
 import { FileInfo, useStore } from './store'
+import { TEST_DATA } from './utilities/testData'
 import { vscode } from './utilities/vscode'
 
 const nodeTypes: NodeTypes = { file: FileNode as any }
 
-const DnDFlow = () => {
+const App = () => {
   const { files, editFile, setReactFlowInstance, reactFlowInstance, setFiles } =
     useStore()
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
@@ -54,9 +55,11 @@ const DnDFlow = () => {
     const filesInState = vscode.getState()?.files
     if (filesInState) {
       setFiles(filesInState)
+    } else if (import.meta.env.DEV) {
+      setFiles(TEST_DATA.files)
     }
     vscode.postMessage({ type: 'app-ready' })
-    console.log('✅ App is ready!')
+    console.info('✅ App is ready!')
 
     return () => {
       window.removeEventListener('message', handleEvent)
@@ -130,9 +133,9 @@ const DnDFlow = () => {
   )
 
   return (
-    <div className="dndflow">
+    <div className="flex flex-col md:flex-row h-full">
       <ReactFlowProvider>
-        <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+        <div className="flex-[3_0_300px] md:flex-1" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}
             // edges={edges}
@@ -157,4 +160,4 @@ const DnDFlow = () => {
   )
 }
 
-export default DnDFlow
+export default App
