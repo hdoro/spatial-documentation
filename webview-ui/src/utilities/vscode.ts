@@ -76,6 +76,4 @@ class VSCodeAPIWrapper<StateType> {
 }
 
 // Exports class singleton to prevent multiple invocations of acquireVsCodeApi.
-export const vscode = new VSCodeAPIWrapper<
-  Record<string, { version: number; state: StoreState }>
->()
+export const vscode = new VSCodeAPIWrapper<Pick<StoreState, 'files'>>()

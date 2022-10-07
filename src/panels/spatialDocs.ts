@@ -85,9 +85,9 @@ async function persistData(data: { files: any[] }) {
     (workspace.workspaceFolders?.[0].uri.path || '') + '/spatial-docs.json',
   )
 
-  // 1. Start by creating the file if it doesn't exist
+  // 1. Start by creating the file
   const wsedit = new WorkspaceEdit()
-  wsedit.createFile(saveFileUri, { ignoreIfExists: true })
+  wsedit.createFile(saveFileUri, { overwrite: true })
   await workspace.applyEdit(wsedit)
 
   // 2. Then fetch its TextDocument to figure out the line count
@@ -99,8 +99,12 @@ async function persistData(data: { files: any[] }) {
     saveFileUri,
     new Range(new Position(0, 0), new Position(storageFile.lineCount, 0)),
     JSON.stringify(data, null, 2),
+    { needsConfirmation: false, label: 'Saving spatial docs' },
   )
   await workspace.applyEdit(wsedit)
+
+  // 4. Finish by saving the file
+  storageFile.save()
 }
 
 async function getStoredData() {

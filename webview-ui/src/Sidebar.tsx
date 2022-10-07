@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useStore } from './store'
 import { formatFilePath } from './utilities/formatFilePath'
+import { vscode } from './utilities/vscode'
 
 export default () => {
   const { files } = useStore()
@@ -12,6 +13,11 @@ export default () => {
 
   return (
     <aside className="h-full flex flex-col gap-5 text-slate-600 text-xs pt-4 px-3 bg-white border-l border-l-slate-200">
+      <button
+        onClick={() => vscode.postMessage({ type: 'persist-data', files })}
+      >
+        Persist data
+      </button>
       <div className="text-xs flex items-center gap-2 bg-sky-50 border border-sky-200 text-sky-900 py-3 px-2 rounded-md">
         <svg className="w-[4em]" viewBox="0 0 16 16">
           <path

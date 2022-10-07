@@ -25,13 +25,25 @@ const DnDFlow = () => {
 
   useEffect(() => {
     function handleEvent(event: MessageEvent) {
-      const message = event.data // The JSON data our extension sent
+      const message = event.data
       console.log({ '[app] event': event })
 
       switch (message.type) {
         case 'seed-stored-data':
           if (message.data?.files) {
-            setFiles(message.data?.files)
+            setFiles((existingFiles) => {
+              const workspaceFiles = (message.data?.files as FileInfo[]) || []
+              return [
+                ...existingFiles,
+                // Include un-added workspace files to the store
+                ...workspaceFiles.filter(
+                  (file) =>
+                    !existingFiles.some(
+                      (existing) => existing.filePath === file.filePath,
+                    ),
+                ),
+              ]
+            })
           }
           break
       }
@@ -39,6 +51,10 @@ const DnDFlow = () => {
     window.addEventListener('message', handleEvent)
 
     // Let the extension know we're ready to handle the data it sends
+    const filesInState = vscode.getState()?.files
+    if (filesInState) {
+      setFiles(filesInState)
+    }
     vscode.postMessage({ type: 'app-ready' })
     console.log('✅ App is ready!')
 

@@ -21,7 +21,9 @@ export type StoreState = {
   ) => void
   reactFlowInstance: ReactFlowInstance | null
   setReactFlowInstance: (instance: ReactFlowInstance) => void
-  setFiles: (files: FileInfo[]) => void
+  setFiles: (
+    filesOrParser: FileInfo[] | ((currentFiles: FileInfo[]) => FileInfo[]),
+  ) => void
 }
 
 const INITIAL_STATE: StoreState = {
@@ -35,10 +37,14 @@ const INITIAL_STATE: StoreState = {
 // this is our useStore hook that we can use in our components to get parts of the store and call actions
 export const useStore = create<StoreState>((set, get) => ({
   ...INITIAL_STATE,
-  setFiles: (files) => {
-    set({
-      files,
-    })
+  setFiles: (filesOrParser) => {
+    if (typeof filesOrParser === 'function') {
+      set({
+        files: filesOrParser(get().files),
+      })
+    } else {
+      set({ files: filesOrParser })
+    }
   },
   editFile: (updatedFile) => {
     set({
@@ -51,8 +57,7 @@ export const useStore = create<StoreState>((set, get) => ({
         }
       }),
     })
-    vscode.postMessage({
-      type: 'persist-data',
+    vscode.setState({
       files: get().files,
     })
   },
