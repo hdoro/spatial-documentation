@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { formatFilePath } from './utilities/formatFilePath'
 import { vscode } from './utilities/vscode'
 
-export function FileNode({ data, selected, ...props }: Node<FileInfo>) {
+export function FileNode({ data, selected }: Node<FileInfo>) {
   const [fullScreen, setFullScreen] = useState(false)
   const { editFile } = useStore()
 
@@ -69,7 +69,6 @@ export function FileNode({ data, selected, ...props }: Node<FileInfo>) {
           type="source"
           position={Position.Right}
           style={{ opacity: 0 }}
-          hidden={true}
         />
         <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
 
@@ -103,6 +102,7 @@ export function FileNode({ data, selected, ...props }: Node<FileInfo>) {
 
           {data.folded && !fullScreen ? null : (
             <Tiptap
+              fileId={data.fileId}
               content={data.content}
               onChange={(content) =>
                 editFile({

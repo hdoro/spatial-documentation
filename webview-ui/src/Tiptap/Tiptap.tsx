@@ -19,12 +19,14 @@ const MENU_KEY = new PluginKey('floatingMenu')
 const Tiptap = ({
   onChange,
   content,
+  fileId,
 }: {
   content?: JSONContent
   onChange?: (content: JSONContent) => void
+  fileId: string
 }) => {
   const parentRef = useRef<HTMLDivElement>()
-  const store = useStore()
+  const { editFile } = useStore()
   const editor = useEditor({
     extensions: [
       LinkMark.configure({
@@ -32,6 +34,8 @@ const Tiptap = ({
         HTMLAttributes: {
           class: 'text-underline text-blue-700',
         },
+        editFile,
+        fileId,
       }),
       StarterKit.configure({
         blockquote: {
@@ -73,8 +77,16 @@ const Tiptap = ({
 
   useEffect(() => {
     if (editor) {
-      // console.log({ update: editor.getJSON() })
-      onChange?.(editor.getJSON())
+      const updatedDocument = editor.getJSON()
+      if (updatedDocument.type === 'doc') {
+        onChange?.({
+          ...updatedDocument,
+          fileId,
+          attrs: { fileId },
+        })
+      } else {
+        onChange?.(updatedDocument)
+      }
     }
   }, [editor?.state])
 
@@ -124,6 +136,7 @@ const Tiptap = ({
             </button>
             <button
               onClick={() =>
+                // @TODO properly toggling links
                 editor.chain().focus().toggleLink({ href: '' }).run()
               }
               className={`${

@@ -4,14 +4,19 @@ import {
   getChangedRanges,
   getMarksBetween,
   NodeWithPos,
+  Editor,
 } from '@tiptap/core'
 import { find, test } from 'linkifyjs'
 import { MarkType } from 'prosemirror-model'
 import { Plugin, PluginKey } from 'prosemirror-state'
+import { StoreState } from '../../store'
 
 type AutolinkOptions = {
   type: MarkType
   validate?: (url: string) => boolean
+  editFile: StoreState['editFile']
+  editor: Editor
+  fileId: string
 }
 
 export function autolink(options: AutolinkOptions): Plugin {
@@ -152,6 +157,24 @@ export function autolink(options: AutolinkOptions): Plugin {
                 }),
               )
             })
+
+          // CHEAP ADDITION OF INTERNAL LINKS
+          const [, internalLinkPath] =
+            new RegExp(/@([\w\d\/.-]{1,})/).exec(lastWordBeforeSpace) || []
+          if (internalLinkPath) {
+            // @TODO: find a better place for linking files
+            options.editFile({
+              fileId: options.fileId,
+              references: [internalLinkPath],
+            })
+            tr.addMark(
+              lastWordAndBlockOffset,
+              lastWordAndBlockOffset + internalLinkPath.length + 2,
+              options.type.create({
+                href: `@${internalLinkPath}`,
+              }),
+            )
+          }
         }
       })
 

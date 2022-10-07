@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactFlow, {
   Background,
   Controls,
+  Edge,
   Node,
   NodeTypes,
   OnEdgesChange,
@@ -147,14 +148,30 @@ const App = () => {
     }
   }, [])
 
+  const edges = useMemo(
+    () =>
+      nodes.flatMap((node) => {
+        return (
+          (node.data.references?.map((reference) => {
+            return {
+              id: `${node.data.fileId}-->${reference}`,
+              source: node.id,
+              target: reference,
+              markerEnd: 'arrow',
+            }
+          }) as Edge[]) || []
+        )
+      }),
+    [nodes],
+  )
+
   return (
     <div className="flex flex-col md:flex-row h-full">
       <ReactFlowProvider>
         <div className="flex-[3_0_300px] md:flex-1" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}
-            // edges={edges}
-            edges={[]}
+            edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onInit={setReactFlowInstance}

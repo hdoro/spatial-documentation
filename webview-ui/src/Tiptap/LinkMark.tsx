@@ -1,6 +1,7 @@
 import { Mark, markPasteRule, mergeAttributes } from '@tiptap/core'
 import { find, registerCustomProtocol } from 'linkifyjs'
 import { Plugin } from 'prosemirror-state'
+import { StoreState } from '../store'
 
 import { autolink } from './helpers/autolink'
 import { clickHandler } from './helpers/clickHandler'
@@ -33,6 +34,9 @@ export interface LinkOptions {
    * @returns - True if the url is valid, false otherwise.
    */
   validate?: (url: string) => boolean
+
+  editFile: StoreState['editFile']
+  fileId: string
 }
 
 declare module '@tiptap/core' {
@@ -81,6 +85,8 @@ export const LinkMark = Mark.create<LinkOptions>({
         class: null,
       },
       validate: undefined,
+      editFile() {},
+      fileId: '',
     }
   },
 
@@ -171,6 +177,9 @@ export const LinkMark = Mark.create<LinkOptions>({
         autolink({
           type: this.type,
           validate: this.options.validate,
+          editFile: this.options.editFile,
+          editor: this.editor,
+          fileId: this.options.fileId,
         }),
       )
     }
