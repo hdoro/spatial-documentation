@@ -79,7 +79,7 @@ const Tiptap = ({
   }, [editor?.state])
 
   return (
-    <div className="relative" ref={parentRef as any}>
+    <div className="relative mt-3" ref={parentRef as any}>
       {editor && (
         <BubbleMenu
           editor={editor}
@@ -89,7 +89,7 @@ const Tiptap = ({
           }}
           pluginKey={MENU_KEY}
         >
-          <div className="bg-white border-2 border-gray-100 rounded-sm px-2 py-1 flex gap-2 items-center relative z-50">
+          <div className="bg-white border-2 border-gray-100 rounded-sm py-1 flex gap-2 items-center relative z-50">
             <button
               onClick={() => editor.chain().focus().toggleBold().run()}
               className={`${
