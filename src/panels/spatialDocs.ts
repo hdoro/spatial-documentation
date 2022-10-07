@@ -47,6 +47,14 @@ export function spatialDocsPanel(context: ExtensionContext): void {
               data: storedData,
             })
             break
+          case 'open-file':
+            const fileUri = Uri.file(
+              `${workspace.workspaceFolders?.[0].uri.path || ''}/${
+                message.path
+              }`,
+            )
+            window.showTextDocument(fileUri)
+            break
         }
       },
       undefined,
@@ -108,7 +116,7 @@ async function getStoredData() {
 
       return {
         fileId: relativePath,
-        fileName: relativePath,
+        filePath: relativePath,
       }
     })
 

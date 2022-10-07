@@ -6,7 +6,7 @@ import { vscode } from './utilities/vscode'
 // @TODO: rename to "document"?
 export interface FileInfo {
   fileId: string
-  fileName: string
+  filePath: string
   content?: JSONContent
   references?: string[]
   folded?: boolean
