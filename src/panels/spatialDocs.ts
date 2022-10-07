@@ -6,6 +6,9 @@ import {
   WebviewPanel,
   window,
   workspace,
+  WorkspaceEdit,
+  Range,
+  Position,
 } from 'vscode'
 import { getUri } from '../utilities/getUri'
 
@@ -77,28 +80,39 @@ export function spatialDocsPanel(context: ExtensionContext): void {
   }
 }
 
-async function persistData(data: any) {
+async function persistData(data: { files: any[] }) {
   const saveFileUri = Uri.file(
     (workspace.workspaceFolders?.[0].uri.path || '') + '/spatial-docs.json',
   )
-  // @TODO: save file
-  // const saveFile = await workspace.openTextDocument(saveFileUri)
-  console.log(`[extension] Persisting data`, {
+
+  // 1. Start by creating the file if it doesn't exist
+  const wsedit = new WorkspaceEdit()
+  wsedit.createFile(saveFileUri, { ignoreIfExists: true })
+  await workspace.applyEdit(wsedit)
+
+  // 2. Then fetch its TextDocument to figure out the line count
+  const storageFileUri = (await workspace.findFiles('spatial-docs.json'))[0]
+  const storageFile = await workspace.openTextDocument(storageFileUri)
+
+  // 3. And tell VS Code to replace the entire file, based on the line count
+  wsedit.replace(
     saveFileUri,
-    // saveFile
-  })
-  // saveFile
-  // workspace
+    new Range(new Position(0, 0), new Position(storageFile.lineCount, 0)),
+    JSON.stringify(data, null, 2),
+  )
+  await workspace.applyEdit(wsedit)
 }
 
 async function getStoredData() {
   let storedData
   try {
-    const storageFile = (await workspace.findFiles('spatial-docs.json'))[0]
-    storedData = JSON.parse(
-      (await workspace.openTextDocument(storageFile)).getText(),
-    )
+    const storageFileUri = (await workspace.findFiles('spatial-docs.json'))[0]
+    const storageFile = await workspace.openTextDocument(storageFileUri)
+    storedData = JSON.parse(storageFile.getText())
   } catch (error) {
+    console.log("[extension] Stored file doesn't exist. Creating it.", {
+      fetchingError: error,
+    })
     // @TODO ignore files from .gitignore
     // const gitignore = await workspace.findFiles('.gitignore')
     // const globIgnore = gitignore[0]
