@@ -21,13 +21,6 @@ body,
   height: 100%;
 }
 
-.dndflow aside {
-  border-left: 1px solid #eee;
-  padding: 15px 10px;
-  font-size: 12px;
-  background: #fcfcfc;
-}
-
 .dndflow aside .description {
   margin-bottom: 10px;
 }

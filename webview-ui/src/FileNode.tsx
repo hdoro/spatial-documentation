@@ -3,6 +3,8 @@ import { FileInfo, useStore } from './store'
 import Tiptap from './Tiptap/Tiptap'
 import icons from './icons'
 import { useState } from 'react'
+import { formatFilePath } from './utilities/formatFilePath'
+import { vscode } from './utilities/vscode'
 
 export function FileNode({ data, selected, ...props }: Node<FileInfo>) {
   const [fullScreen, setFullScreen] = useState(false)
@@ -71,8 +73,21 @@ export function FileNode({ data, selected, ...props }: Node<FileInfo>) {
         />
         <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
 
-        <div className="px-2 pt-2">
-          <pre className="text-lg">{data.fileName}</pre>
+        <div className="px-1 pt-3">
+          <button
+            className="text-base font-mono overflow-hidden underline block w-full text-left"
+            onClick={() => [
+              vscode.postMessage({
+                type: 'open-file',
+                path: data.filePath,
+              }),
+            ]}
+            title={`Open file ${data.filePath}`}
+          >
+            <span className="whitespace-nowrap">
+              {formatFilePath(data.filePath)}
+            </span>
+          </button>
 
           {data.folded && !fullScreen ? null : (
             <Tiptap
