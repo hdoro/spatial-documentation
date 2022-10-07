@@ -15,11 +15,12 @@ body,
 }
 
 .ProseMirror {
+  @apply text-slate-800;
   position: relative;
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
-  color: #adb5bd;
+  @apply text-gray-400;
   content: attr(data-placeholder);
   float: left;
   height: 0;
@@ -38,10 +39,19 @@ body,
   @apply font-mono uppercase;
 }
 
+.ProseMirror code {
+  @apply text-slate-900 bg-slate-100;
+}
+
 .ProseMirror > * + * {
   margin-top: 0.5em;
 }
 
 .ProseMirror h1 + p {
   margin-top: 0.25em;
+}
+
+body[data-ctrl='true'] .ProseMirror a:hover {
+  cursor: pointer;
+  text-decoration: underline;
 }

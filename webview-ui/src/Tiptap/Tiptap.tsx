@@ -122,7 +122,7 @@ const Tiptap = ({
             >
               Code
             </button>
-            {/* <button
+            <button
               onClick={() =>
                 editor.chain().focus().toggleLink({ href: '' }).run()
               }
@@ -131,7 +131,7 @@ const Tiptap = ({
               } hover:bg-gray-100`}
             >
               Link
-            </button> */}
+            </button>
           </div>
         </BubbleMenu>
       )}

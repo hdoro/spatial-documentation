@@ -132,6 +132,21 @@ const App = () => {
     [reactFlowInstance],
   )
 
+  useEffect(() => {
+    function ctrlHandler(event: KeyboardEvent) {
+      const enabled =
+        event.type === 'keyup' ? false : event.metaKey || event.ctrlKey
+      document.body.dataset.ctrl = String(enabled)
+    }
+
+    window.addEventListener('keydown', ctrlHandler)
+    window.addEventListener('keyup', ctrlHandler)
+    return () => {
+      window.removeEventListener('keydown', ctrlHandler)
+      window.removeEventListener('keyup', ctrlHandler)
+    }
+  }, [])
+
   return (
     <div className="flex flex-col md:flex-row h-full">
       <ReactFlowProvider>
